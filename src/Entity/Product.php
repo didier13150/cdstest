@@ -4,7 +4,8 @@ namespace App\Entity;
 
 class Product
 {
-    const FOOD_PRODUCT = 'food';
+    const FOOD_PRODUCT  = 'food';
+    const OTHER_PRODUCT = 'other';
 
     private $name;
 
@@ -21,6 +22,10 @@ class Product
 
     public function computeTVA()
     {
+        if ($this->price < 0) {
+            throw new \LogicException('The VAT cannot be negative.');
+        }
+        
         if (self::FOOD_PRODUCT == $this->type) {
             return $this->price * 0.055;
         }
