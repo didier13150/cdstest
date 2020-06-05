@@ -12,5 +12,9 @@ composer require logger
 ## Run tests
 
 ```
-bin/phpunit
+mkdir -p reports/web-coverage
+bin/phpunit \
+    --log-junit reports/web-phpunit.xml \
+    --coverage-clover reports/web-clover.xml \
+    --coverage-html reports/web-coverage
 ```
