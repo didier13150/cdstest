@@ -1,0 +1,66 @@
+version: v1.0
+name: SonarScanner
+description: Install and run Sonar analysis. You must have a file sonar-project.properties in your source directory.
+parameters:
+  sonar-project.properties:
+    type: text
+    default: |-
+      sonar.projectKey={{.cds.application}}
+      sonar.projectName={{.cds.application}}
+      sonar.projectVersion={{.git.hash}}
+      sonar.sources=src
+      sonar.exclusions=**/*_test.go,**/vendor/**
+      sonar.tests=tests
+      sonar.test.inclusions=**/*_test.go
+      sonar.test.exclusions=**/vendor/**
+    description: sonar-project.properties file
+  sonarDownloadURL:
+    type: string
+    default: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-{{.sonarVersion}}-linux.zip
+    description: The download URL of Sonar CLI
+    advanced: true
+  sonarPassword:
+    type: string
+    default: '{{.cds.proj.sonarPassword}}'
+    description: The Sonar server's password
+    advanced: true
+  sonarURL:
+    type: string
+    default: '{{.cds.proj.sonarURL}}'
+    description: The URL of the Sonar server
+    advanced: true
+  sonarUsername:
+    type: string
+    default: '{{.cds.proj.sonarUsername}}'
+    description: The Sonar server's username
+    advanced: true
+  sonarVersion:
+    type: string
+    default: 4.3.0.2102
+    description: SonarScanner's version to use
+    advanced: true
+  workspace:
+    type: string
+    default: '{{.cds.workspace}}'
+    description: The directory where your project is (e.g. /go/src/github.com/ovh/cds)
+requirements:
+- binary: bash
+- binary: unzip
+- binary: curl
+steps:
+- name: Initialization
+  script:
+  - '#!/bin/bash'
+  - mkdir -p {{.workspace}}/opt
+  - curl -fsSL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-{{.sonarVersion}}-linux.zip -o {{.workspace}}/sonar-scanner-cli-{{.sonarVersion}}-linux.zip
+  - unzip -d {{.workspace}}/opt/ {{.workspace}}/sonar-scanner-cli-{{.sonarVersion}}-linux.zip
+- name: Runtime
+  script:
+  - '#!/bin/bash'
+  - export SONAR_SCANNER_OPTS="-Xmx1024m"
+  - cd {{.workspace}}
+  - cat <<EOF > sonar-project.properties
+  - '{{.sonar-project.properties}}'
+  - EOF
+  - opt/sonar-scanner-{{.sonarVersion}}-linux/bin/sonar-scanner -Dsonar.host.url={{.sonarURL}} -Dsonar.login={{.sonarUsername}} -Dsonar.password={{.sonarPassword}} -Dsonar.scm.disabled=true
+
