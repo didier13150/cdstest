@@ -1,7 +1,0 @@
-name: composer
-group: shared.infra
-image: docker.tartarefr.eu:5000/composer:el7-1
-description: Composer worker model
-type: docker
-pattern_name: basic_unix
-
